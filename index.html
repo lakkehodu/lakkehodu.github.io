@@ -731,8 +731,12 @@
     // ─── Rolling Ribbon ───────────────────────────────────────
     const ribbonTrack = document.getElementById('ribbon-track');
 
-    // Duplicate string twice → seamless -50% loop
-    for (let i = 0; i < 2; i++) {
+    // Use enough spans to fill any screen width; duration scales to keep same px/s speed
+    // Original: 2 spans × 14s/span = 28s. Keep 14s per span.
+    const RIBBON_SPANS = 20;
+    ribbonTrack.style.animationDuration = (RIBBON_SPANS / 2 * 14) + 's';
+
+    for (let i = 0; i < RIBBON_SPANS; i++) {
       const span = document.createElement('span');
       span.className   = 'ribbon-item';
       span.textContent = RIBBON_STR;
