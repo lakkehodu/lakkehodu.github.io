@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ───────────────────────────────────────
+       MAIN  ~60%
+    ─────────────────────────────────────── */
+    #main {
+      flex: 1;
+      position: relative;
+      background: #081D63;
+      overflow: hidden;
+    }
+
+    #main-title {
+      position: absolute;
+      bottom: 32px;
+      left: 40px;
+      width: 60%;
+      max-height: 60%;
+      height: auto;
+      pointer-events: none;
+      user-select: none;
+      z-index: 1;
+      display: block;
+    }
+
+    /* Stickers */
+    .sticker {
+      position: absolute;
+      width: 6.4vw;
+      height: 6.4vw;
+      user-select: none;
+      touch-action: none;
+      z-index: 5;
+      mix-blend-mode: screen;
+    }
+    .sticker img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* WOW bubble */
+    .wow-bubble {
+      position: absolute;
+      transform: translate(-50%, -110%) scale(0.7);
+      pointer-events: none;
+      z-index: 50;
+      opacity: 0;
+      width: 120px;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .wow-bubble img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .wow-bubble.wow-in {
+      opacity: 1;
+      transform: translate(-50%, -110%) scale(1);
+    }
+    .wow-bubble.wow-out {
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    /* Perfect — pop animation */
+    @keyframes perfect-pop {
+      0%   { transform: translate(-50%, -110%) scale(0.3); opacity: 0; }
+      50%  { transform: translate(-50%, -120%) scale(1.4); opacity: 1; }
+      70%  { transform: translate(-50%, -108%) scale(0.9); opacity: 1; }
+      85%  { transform: translate(-50%, -115%) scale(1.1); opacity: 1; }
+      100% { transform: translate(-50%, -110%) scale(1);   opacity: 1; }
+    }
+    .wow-bubble.perfect.wow-in {
+      animation: perfect-pop 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      transition: none;
+    }
+
+    /* Sheet overlay */
+    #sheet {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 48px 44px 40px;
+      gap: 44px;
+      pointer-events: none;
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    #sheet.open {
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    #close-btn {
+      position: absolute;
+      top: 18px;
+      right: 22px;
+      background: none;
+      border: none;
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      color: rgba(0,0,0,0.65);
+      transition: color 0.15s;
+    }
+    #close-btn:hover { color: #000; }
+
+    /* Gallery — left side of sheet */
+    #gallery {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    #gallery-frame {
+      background-color: #1a1a1a;
+      background-size: cover;
+      background-position: center;
+    }
+    #gallery-dots {
+      display: flex;
+      gap: 9px;
+    }
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.28);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .dot.active { background: rgba(0,0,0,0.78); }
+
+    /* Description — right side */
+    #description {
+      flex: 0 0 auto;
+      width: 360px;
+      padding-top: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
+    }
+    .desc-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      line-height: 1.0;
+      color: rgba(0,0,0,0.45);
+      margin-bottom: 10px;
+    }
+    .desc-title {
+      font-size: 29px;
+      font-weight: 700;
+      line-height: 1.0;
+      color: rgba(0,0,0,0.85);
+      margin-bottom: 20px;
+    }
+    .desc-body {
+      font-size: 13px;
+      line-height: 1.42;
+      color: rgba(0,0,0,0.62);
+      margin-bottom: 14px;
+    }
+
+    /* ───────────────────────────────────────
+       TAB  ~30%
+    ─────────────────────────────────────── */
+    #tab {
+      flex: none;
+      height: var(--tab-h, 220px);
+      max-height: 220px;
+      background: #191919;
+      display: flex;
+      align-items: center;
+      padding: 0;
+    }
+
+    .arrow {
+      flex: 0 0 72px;
+      height: 100%;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.55;
+      transition: opacity 0.15s;
+      padding: 0 20px;
+    }
+    .arrow:hover { opacity: 1; }
+    .arrow img {
+      width: 28px;
+      height: 28px;
+      display: block;
+      pointer-events: none;
+    }
+    #btn-prev img { transform: scaleX(-1); }
+
+    #cards-wrap {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      gap: 14px;
+      padding: 32px 0;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      flex: 0 0 auto;
+      height: var(--card-h, 156px);
+      aspect-ratio: 4 / 3;
+      width: auto;
+      border-radius: 0;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+      opacity: 1;
+      transition: opacity 0.2s ease;
+    }
+    #cards-wrap:has(.card:hover) .card:not(:hover) {
+      opacity: 0.2;
+    }
+
+    /* ───────────────────────────────────────
+       ROLLING RIBBON  fixed strip
+    ─────────────────────────────────────── */
+    #ribbon {
+      flex: 0 0 36px;
+      background: #E3FF2D;
+      border-top: none;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    .ribbon-track {
+      display: inline-flex;
+      will-change: transform;
+      animation: ribbon-roll 28s linear infinite;
+    }
+
+    .ribbon-item {
+      white-space: nowrap;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      color: #111;
+      padding-right: 64px;
+    }
+
+    @keyframes ribbon-roll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── MAIN ───────────────────────────── -->
+  <section id="main">
+    <img id="main-title" src="images/title.svg" alt="" />
+    <!-- Stickers injected by JS -->
+
+    <div id="sheet">
+      <button id="close-btn">&#x2715;</button>
+
+      <div id="gallery">
+        <div id="gallery-frame"></div>
+        <div id="gallery-dots"></div>
+      </div>
+
+      <div id="description"></div>
+    </div>
+  </section>
+
+  <!-- ── TAB ────────────────────────────── -->
+  <section id="tab">
+    <button class="arrow" id="btn-prev"><img src="images/arrow.svg" alt="prev" /></button>
+    <div id="cards-wrap"></div>
+    <button class="arrow" id="btn-next"><img src="images/arrow.svg" alt="next" /></button>
+  </section>
+
+  <!-- ── ROLLING RIBBON ─────────────────── -->
+  <div id="ribbon">
+    <div class="ribbon-track" id="ribbon-track"></div>
+  </div>
+
+  <script>
+    // ─── Config ───────────────────────────────────────────────
+    const CARDS = [
+      { color: '#7800EF', img: 'images/zenche-1.png'   },
+      { color: '#B27F57', img: 'images/prompt-a-1.png' },
+      { color: '#909A55', img: 'images/cake-1.png'     },
+      { color: '#FCD7DE', img: 'images/prompt-b-1.png' },
+      { color: '#E8454A', img: 'images/5.png'          },
+      { color: '#2D7FF9', img: 'images/6.png'          },
+      { color: '#25B47E', img: 'images/7.png'          },
+      { color: '#F7A325', img: 'images/8.png'          },
+    ];
+    const IMG_COUNT  = 4;
+    const GAP        = 14;
+    const ARROW_W    = 72;
+    const PAD_V      = 64;
+    const TAB_MAX_H  = 220;
+    const MIN_PER_PAGE = 4;
+    const RIBBON_STR =
+      'PORTFOLIO · DESIGN · DEVELOPMENT · CREATIVE · WORKS · PROJECTS · INTERACTION · VISUAL DESIGN · ';
+
+    // ─── Emoji cursors ────────────────────────────────────────
+    function makeEmojiCursor(emoji, size = 64, flip = false) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      ctx.font = `${Math.round(size * 0.48)}px serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      if (flip) {
+        ctx.translate(size, 0);
+        ctx.scale(-1, 1);
+      }
+      ctx.fillText(emoji, size / 2, size / 2);
+      return `url(${canvas.toDataURL()}) ${size / 2} ${size / 2}, auto`;
+    }
+
+    const cursorDefault = makeEmojiCursor('🖐️', 64, true);
+    const cursorDrag    = makeEmojiCursor('🤛', 64, false);
+
+    // ─── MAIN: Stickers ───────────────────────────────────────
+    const mainEl = document.getElementById('main');
+    mainEl.style.cursor = cursorDefault;
+
+    // 5 stickers — randomized, biased toward right side
+    // left: 80% chance in right half (50~88%), 20% chance in left half (5~50%)
+    // top:  5~85%
+    function randLeft() {
+      return Math.random() < 0.8
+        ? 50 + Math.random() * 38   // right half: 50~88%
+        :  5 + Math.random() * 45;  // left half:  5~50%
+    }
+    const STICKER_INIT = Array.from({ length: 5 }, () => ({
+      left: randLeft().toFixed(1) + '%',
+      top:  (5 + Math.random() * 80).toFixed(1) + '%',
+    }));
+
+    STICKER_INIT.forEach(({ left, top }) => {
+      const el     = document.createElement('div');
+      el.className = 'sticker';
+      el.style.left = left;
+      el.style.top  = top;
+      const img    = document.createElement('img');
+      img.src      = 'images/trash.svg';
+      img.alt      = '';
+      el.appendChild(img);
+      mainEl.appendChild(el);
+      enableDrag(el);
+    });
+
+    function enableDrag(el) {
+      let ox, oy, ol, ot;
+
+      el.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        el.setPointerCapture(e.pointerId);
+        ox = e.clientX; oy = e.clientY;
+        ol = el.offsetLeft; ot = el.offsetTop;
+        mainEl.style.cursor = cursorDrag;
+        el.addEventListener('pointermove', onMove);
+        el.addEventListener('pointerup',   onUp, { once: true });
+      });
+
+      function onMove(e) {
+        const mr = mainEl.getBoundingClientRect();
+        const nl = Math.max(0, Math.min(ol + e.clientX - ox, mr.width  - el.offsetWidth));
+        const nt = Math.max(0, Math.min(ot + e.clientY - oy, mr.height - el.offsetHeight));
+        el.style.left = nl + 'px';
+        el.style.top  = nt + 'px';
+      }
+
+      function onUp() {
+        el.removeEventListener('pointermove', onMove);
+        mainEl.style.cursor = cursorDefault;
+        checkOverlap(el);
+      }
+    }
+
+    // ─── Overlap detection ────────────────────────────────────
+    let wowTimeout = null;
+
+    function stickerCenter(el) {
+      return {
+        x: el.offsetLeft + el.offsetWidth  / 2,
+        y: el.offsetTop  + el.offsetHeight / 2,
+      };
+    }
+
+    function checkOverlap(moved) {
+      const stickers = Array.from(mainEl.querySelectorAll('.sticker'));
+      const c1 = stickerCenter(moved);
+
+      for (const other of stickers) {
+        if (other === moved) continue;
+        const c2   = stickerCenter(other);
+        const dist = Math.hypot(c1.x - c2.x, c1.y - c2.y);
+
+        if (dist <= 1) {
+          showWow(c1.x, c1.y, 'images/perfect.png', true);
+          break;
+        } else if (dist <= 10) {
+          showWow(c1.x, c1.y, 'images/wow.png', false);
+          break;
+        }
+      }
+    }
+
+    function showWow(cx, cy, imgSrc, isPerfect) {
+      const existing = mainEl.querySelector('.wow-bubble');
+      if (existing) existing.remove();
+      clearTimeout(wowTimeout);
+
+      const bubble = document.createElement('div');
+      bubble.className = isPerfect ? 'wow-bubble perfect' : 'wow-bubble';
+      const rx = (Math.random() * 100) - 50;
+      const ry = (Math.random() * 100) - 50;
+      bubble.style.left = (cx + rx) + 'px';
+      bubble.style.top  = (cy + ry) + 'px';
+      const img = document.createElement('img');
+      img.src = imgSrc;
+      img.alt = '';
+      bubble.appendChild(img);
+      mainEl.appendChild(bubble);
+
+      requestAnimationFrame(() => bubble.classList.add('wow-in'));
+
+      wowTimeout = setTimeout(() => {
+        bubble.style.transition = 'opacity 0.4s ease';
+        bubble.style.opacity    = '0';
+        setTimeout(() => bubble.remove(), 400);
+      }, 1000);
+    }
+
+    // ─── TAB: Layout calculation ──────────────────────────────
+    function calcPerPage() {
+      const vw = window.innerWidth;
+      const availW  = vw - ARROW_W * 2;
+      const maxCardH = TAB_MAX_H - PAD_V;      // 156px
+      const maxCardW = maxCardH * 4 / 3;        // 208px
+      let n = MIN_PER_PAGE;
+      while (n < CARDS.length) {
+        const totalW = (n + 1) * maxCardW + n * GAP;
+        if (totalW > availW) break;
+        n++;
+      }
+      return n;
+    }
+
+    function updateLayout(n) {
+      const vw     = window.innerWidth;
+      const availW = vw - ARROW_W * 2;
+      const cardW  = (availW - (n - 1) * GAP) / n;
+      const cardH  = Math.min(Math.round(cardW * 0.75), TAB_MAX_H - PAD_V);
+      const tabH   = cardH + PAD_V;
+      document.documentElement.style.setProperty('--card-h', cardH + 'px');
+      document.documentElement.style.setProperty('--tab-h',  tabH  + 'px');
+    }
+
+    // ─── TAB: Cards & Pagination ──────────────────────────────
+    const cardsWrap = document.getElementById('cards-wrap');
+    let page = 0;
+
+    function renderCards() {
+      const perPage    = calcPerPage();
+      const totalPages = Math.ceil(CARDS.length / perPage);
+      page = Math.min(page, totalPages - 1);
+
+      updateLayout(perPage);
+      cardsWrap.innerHTML = '';
+      const start = page * perPage;
+      const end   = Math.min(start + perPage, CARDS.length);
+
+      for (let i = start; i < end; i++) {
+        const data = CARDS[i];
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.backgroundImage = `url('${data.img}')`;
+        card.addEventListener('click', () => openSheet(data));
+        cardsWrap.appendChild(card);
+      }
+    }
+
+    document.getElementById('btn-prev').addEventListener('click', () => {
+      const perPage    = calcPerPage();
+      const totalPages = Math.ceil(CARDS.length / perPage);
+      page = (page - 1 + totalPages) % totalPages;
+      renderCards();
+    });
+    document.getElementById('btn-next').addEventListener('click', () => {
+      const perPage    = calcPerPage();
+      const totalPages = Math.ceil(CARDS.length / perPage);
+      page = (page + 1) % totalPages;
+      renderCards();
+    });
+
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(renderCards, 80);
+    });
+
+    renderCards();
+
+    // ─── Sheet ────────────────────────────────────────────────
+    const sheet       = document.getElementById('sheet');
+    const galleryFrame = document.getElementById('gallery-frame');
+    const galleryDots  = document.getElementById('gallery-dots');
+    const descEl       = document.getElementById('description');
+
+    function openSheet(data) {
+      sheet.style.background = data.color;
+
+      // Gallery size — 4:3, as large as the sheet allows
+      const mainH  = mainEl.clientHeight;
+      const mainW  = mainEl.clientWidth;
+      const descW  = 360 + 44; // description width + gap
+      const padH   = 88;       // sheet left + right padding
+      const padV   = 88;       // sheet top + bottom padding
+      const dotsH  = 32;       // dots row height
+      const maxW   = mainW - padH - descW;
+      const maxH   = mainH - padV - dotsH;
+      const wByH   = Math.round(maxH * 4 / 3);
+      const gW     = wByH <= maxW ? wByH : maxW;
+      const gH     = Math.round(gW * 3 / 4);
+      galleryFrame.style.width           = gW + 'px';
+      galleryFrame.style.height          = gH + 'px';
+      galleryFrame.style.backgroundImage = `url('${data.img}')`;
+
+      // Dots
+      galleryDots.innerHTML = '';
+      for (let i = 0; i < IMG_COUNT; i++) {
+        const d = document.createElement('div');
+        d.className = 'dot' + (i === 0 ? ' active' : '');
+        d.addEventListener('click', () => {
+          galleryDots.querySelectorAll('.dot')
+            .forEach((dd, j) => dd.classList.toggle('active', j === i));
+        });
+        galleryDots.appendChild(d);
+      }
+
+      // Description — dummy text (no label)
+      descEl.innerHTML = `
+        <p class="desc-title">Project Name Goes Here</p>
+        <p class="desc-body">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+        <p class="desc-body">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia.</p>
+        <p class="desc-body">Curabitur pretium tincidunt lacus. Nulla gravida orci a odio, et tempus feugiat. Nullam varius turpis et commodo facilisis.</p>
+      `;
+
+      mainEl.style.cursor = 'default';
+      sheet.classList.add('open');
+    }
+
+    document.getElementById('close-btn').addEventListener('click', () => {
+      sheet.classList.remove('open');
+      mainEl.style.cursor = cursorDefault;
+    });
+
+    // ─── Rolling Ribbon ───────────────────────────────────────
+    const ribbonTrack = document.getElementById('ribbon-track');
+
+    // Duplicate string twice → seamless -50% loop
+    for (let i = 0; i < 2; i++) {
+      const span = document.createElement('span');
+      span.className   = 'ribbon-item';
+      span.textContent = RIBBON_STR;
+      ribbonTrack.appendChild(span);
+    }
+  </script>
+</body>
+</html>
