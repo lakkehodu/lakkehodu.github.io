@@ -258,7 +258,8 @@
        ROLLING RIBBON  fixed strip
     ─────────────────────────────────────── */
     #ribbon {
-      flex: 0 0 36px;
+      flex: 0 0 auto;
+      padding: 10px 0;
       background: #E3FF2D;
       border-top: none;
       overflow: hidden;
@@ -274,7 +275,7 @@
 
     .ribbon-item {
       white-space: nowrap;
-      font-size: 13px;
+      font-size: 17px;
       font-weight: 700;
       letter-spacing: 0.1em;
       color: #111;
@@ -298,7 +299,7 @@
       }
 
       body {
-        padding-bottom: 36px; /* space for fixed ribbon */
+        padding-bottom: 38px; /* space for fixed ribbon */
       }
 
       #main {
@@ -436,7 +437,7 @@
     const TAB_MAX_H  = 220;
     const MIN_PER_PAGE = 4;
     const RIBBON_STR =
-      'Having Fun with Trashy ideas?  ';
+      'HAVING FUN WITH TRASHY IDEAS?  ';
 
     // ─── Emoji cursors ────────────────────────────────────────
     function makeEmojiCursor(emoji, size = 64, flip = false) {
