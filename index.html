@@ -284,6 +284,76 @@
       from { transform: translateX(0); }
       to   { transform: translateX(-50%); }
     }
+
+    /* ───────────────────────────────────────
+       MOBILE  ≤768px
+    ─────────────────────────────────────── */
+    @media (max-width: 768px) {
+      /* Allow full-page scroll on mobile */
+      html, body {
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
+      }
+
+      body {
+        padding-bottom: 36px; /* space for fixed ribbon */
+      }
+
+      #main {
+        flex: none;
+        height: auto;
+        min-height: 130vw;
+      }
+
+      #main-title {
+        bottom: 24px;
+        left: 50% !important;
+        top: auto !important;
+        transform: translateX(-50%);
+        width: 80%;
+      }
+
+      .sticker {
+        width: max(6.4vw, 75px);
+        height: max(6.4vw, 75px);
+      }
+
+      .arrow { display: none; }
+
+      #tab {
+        display: block;
+        flex: none;
+        height: auto;
+        max-height: none;
+        overflow: visible;
+      }
+
+      #cards-wrap {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 16px;
+        width: 100%;
+        height: auto;
+      }
+
+      .card {
+        height: auto !important;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+      }
+
+      /* Ribbon fixed at bottom */
+      #ribbon {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        flex: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -389,19 +459,21 @@
       enableDrag(el);
     });
 
-    // Title drag — lazy init: convert bottom/left → top/left on first pointerdown
-    let titleDragReady = false;
-    titleEl.addEventListener('pointerdown', () => {
-      if (!titleDragReady) {
-        const mr = mainEl.getBoundingClientRect();
-        const tr = titleEl.getBoundingClientRect();
-        titleEl.style.top    = (tr.top  - mr.top)  + 'px';
-        titleEl.style.left   = (tr.left - mr.left) + 'px';
-        titleEl.style.bottom = 'auto';
-        titleDragReady = true;
-      }
-    }, { capture: true });
-    enableDrag(titleEl);
+    // Title drag — PC only
+    if (window.innerWidth > 768) {
+      let titleDragReady = false;
+      titleEl.addEventListener('pointerdown', () => {
+        if (!titleDragReady) {
+          const mr = mainEl.getBoundingClientRect();
+          const tr = titleEl.getBoundingClientRect();
+          titleEl.style.top    = (tr.top  - mr.top)  + 'px';
+          titleEl.style.left   = (tr.left - mr.left) + 'px';
+          titleEl.style.bottom = 'auto';
+          titleDragReady = true;
+        }
+      }, { capture: true });
+      enableDrag(titleEl);
+    }
 
     function enableDrag(el) {
       let ox, oy, ol, ot;
@@ -516,6 +588,21 @@
     let page = 0;
 
     function renderCards() {
+      const isMobile = window.innerWidth <= 768;
+
+      // Mobile: show all cards in 2-col grid, no pagination
+      if (isMobile) {
+        cardsWrap.innerHTML = '';
+        CARDS.forEach(data => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.style.backgroundImage = `url('${data.img}')`;
+          card.addEventListener('click', () => openSheet(data));
+          cardsWrap.appendChild(card);
+        });
+        return;
+      }
+
       const perPage    = calcPerPage();
       const totalPages = Math.ceil(CARDS.length / perPage);
       page = Math.min(page, totalPages - 1);
