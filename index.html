@@ -275,6 +275,7 @@
     .ribbon-item {
       white-space: nowrap;
       font-size: 13px;
+      font-weight: 700;
       letter-spacing: 0.1em;
       color: #111;
       padding-right: 64px;
@@ -308,10 +309,10 @@
 
       #main-title {
         bottom: 24px;
-        left: 50% !important;
+        left: 20px !important;
         top: auto !important;
-        transform: translateX(-50%);
-        width: 80%;
+        transform: none;
+        width: calc(100% - 40px);
       }
 
       .sticker {
@@ -435,7 +436,7 @@
     const TAB_MAX_H  = 220;
     const MIN_PER_PAGE = 4;
     const RIBBON_STR =
-      'PORTFOLIO · DESIGN · DEVELOPMENT · CREATIVE · WORKS · PROJECTS · INTERACTION · VISUAL DESIGN · ';
+      'Having Fun with Trashy ideas?  ';
 
     // ─── Emoji cursors ────────────────────────────────────────
     function makeEmojiCursor(emoji, size = 64, flip = false) {
