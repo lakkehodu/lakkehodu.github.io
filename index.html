@@ -36,8 +36,9 @@
       width: 60%;
       max-height: 60%;
       height: auto;
-      pointer-events: none;
       user-select: none;
+      -webkit-user-drag: none;
+      touch-action: none;
       z-index: 1;
       display: block;
     }
@@ -357,8 +358,10 @@
     const cursorDrag    = makeEmojiCursor('🤛', 64, false);
 
     // ─── MAIN: Stickers ───────────────────────────────────────
-    const mainEl = document.getElementById('main');
+    const mainEl  = document.getElementById('main');
     mainEl.style.cursor = cursorDefault;
+
+    const titleEl = document.getElementById('main-title');
 
     // 5 stickers — randomized, biased toward right side
     // left: 80% chance in right half (50~88%), 20% chance in left half (5~50%)
@@ -385,6 +388,20 @@
       mainEl.appendChild(el);
       enableDrag(el);
     });
+
+    // Title drag — lazy init: convert bottom/left → top/left on first pointerdown
+    let titleDragReady = false;
+    titleEl.addEventListener('pointerdown', () => {
+      if (!titleDragReady) {
+        const mr = mainEl.getBoundingClientRect();
+        const tr = titleEl.getBoundingClientRect();
+        titleEl.style.top    = (tr.top  - mr.top)  + 'px';
+        titleEl.style.left   = (tr.left - mr.left) + 'px';
+        titleEl.style.bottom = 'auto';
+        titleDragReady = true;
+      }
+    }, { capture: true });
+    enableDrag(titleEl);
 
     function enableDrag(el) {
       let ox, oy, ol, ot;
